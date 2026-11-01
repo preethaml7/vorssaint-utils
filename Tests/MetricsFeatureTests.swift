@@ -770,6 +770,14 @@ enum MetricsFeatureTests {
         ) == nil, "A18 Pro remains unavailable when no CPU sensor answers")
         suite.expect(TemperatureSensorSelector.platform(brandString: "Generic CPU") == .generic,
                "other processors keep the generic CPU sensor path")
+        suite.expect(TemperatureSensorSelector.isCPUTemperatureKey("TC0P", platform: .generic)
+                && TemperatureSensorSelector.isCPUTemperatureKey("TC1C", platform: .generic)
+                && !TemperatureSensorSelector.isCPUTemperatureKey("TC0P", platform: .unmappedAppleSilicon),
+               "generic Intel discovery includes classic AppleSMC CPU temperature families")
+        suite.expect(TemperatureSensorSelector.isGPUTemperatureKey("TG0D")
+                && TemperatureSensorSelector.isGPUTemperatureKey("Tg0D")
+                && !TemperatureSensorSelector.isGPUTemperatureKey("TC0D"),
+               "GPU discovery accepts Intel and Apple Silicon AppleSMC casing")
         suite.expect(TemperatureSensorSelector.isCPUTemperatureKey("Tf4E", platform: .appleM3Family)
                 && !TemperatureSensorSelector.isCPUTemperatureKey("Tf4E", platform: .appleM4Family)
                 && TemperatureSensorSelector.isCPUTemperatureKey("Tp01", platform: .appleM4Family),
@@ -1029,10 +1037,10 @@ enum MetricsFeatureTests {
             platform: m4ProPlatform
         ) ?? -1, 54.80, "an M4 Pro whose set has no plausible reading still shows its CPU family")
         let genericCPU = TemperatureSensorSelector.displayedCPUTemperature(
-            readings: [("Tp00", 44.5), ("Tp01", 51.6)],
+            readings: [("TC0P", 44.5), ("TC0D", 51.6)],
             platform: .generic
         )
-        suite.expectClose(genericCPU ?? -1, 51.6, "generic CPU sensor selection preserves previous hottest behavior")
+        suite.expectClose(genericCPU ?? -1, 51.6, "Intel CPU sensor selection uses the hottest readable sensor")
 
         // MARK: Hot CPU alert
 

@@ -31,6 +31,7 @@ trap 'exit 1' INT TERM HUP
 DEV=0
 INSTALL=0
 TEST=0
+ARCH_MODE=""
 TEST_ARGS=()
 for arg in "$@"; do
     case "$arg" in
@@ -39,6 +40,7 @@ for arg in "$@"; do
         --test)    TEST=1 ;;
         --test-suite=*) TEST=1; TEST_ARGS+=("--suite=${arg#*=}") ;;
         --list-tests) TEST=1; TEST_ARGS+=(--list) ;;
+        --arch=*)  ARCH_MODE="${arg#*=}" ;;
     esac
 done
 
@@ -62,9 +64,67 @@ FAN_HELPER_ID="$APP_BUNDLE_ID.fan-control"
 # Sources/NowPlayingAdapter. Staged under Contents/Frameworks, signed on its own.
 NOW_PLAYING_ADAPTER_ID="$APP_BUNDLE_ID.now-playing"
 NOW_PLAYING_ADAPTER="libVorssaintNowPlaying.dylib"
-TARGET="arm64-apple-macosx14.0"
 ENTITLEMENTS="Resources/Vorssaint.entitlements"
 LEGACY_IDENTITY="Vorssaint Utils Signing"
+
+HOST_ARCH="$(uname -m)"
+case "$HOST_ARCH" in
+    arm64|x86_64) ;;
+    *)
+        echo "Unsupported build host architecture: $HOST_ARCH" >&2
+        exit 1
+        ;;
+esac
+
+# Release artifacts run natively on both Apple Silicon and Intel. Developer
+# builds stay native so edit/build/test remains quick, and an explicit mode is
+# useful when diagnosing one slice. Tests are always native because they are
+# executed immediately after compilation.
+if [[ -z "$ARCH_MODE" ]]; then
+    if (( DEV || TEST )); then
+        ARCH_MODE="native"
+    else
+        ARCH_MODE="universal"
+    fi
+fi
+case "$ARCH_MODE" in
+    native)    BUILD_ARCHS=("$HOST_ARCH") ;;
+    universal) BUILD_ARCHS=(arm64 x86_64) ;;
+    arm64|x86_64) BUILD_ARCHS=("$ARCH_MODE") ;;
+    *)
+        echo "Unsupported --arch value '$ARCH_MODE' (use native, universal, arm64 or x86_64)" >&2
+        exit 1
+        ;;
+esac
+HOST_SLICE_AVAILABLE=0
+for ARCH in "${BUILD_ARCHS[@]}"; do
+    [[ "$ARCH" == "$HOST_ARCH" ]] && HOST_SLICE_AVAILABLE=1
+done
+TEST_TARGET="$HOST_ARCH-apple-macosx14.0"
+
+join_architectures() {
+    local joined=""
+    local arch
+    for arch in "${BUILD_ARCHS[@]}"; do
+        [[ -n "$joined" ]] && joined+=", "
+        joined+="$arch"
+    done
+    print -r -- "$joined"
+}
+
+merge_architecture_slices() {
+    local output="$1"
+    shift
+    if (( $# == 1 )); then
+        cp "$1" "$output"
+    else
+        xcrun lipo -create "$@" -output "$output"
+    fi
+    local arch
+    for arch in "${BUILD_ARCHS[@]}"; do
+        xcrun lipo "$output" -verify_arch "$arch"
+    done
+}
 
 developer_id_identity() {
     security find-identity -v -p codesigning 2>/dev/null \
@@ -247,7 +307,7 @@ discard_test_preferences() {
 # keyboard-data and media fixtures. No application windows or device capture.
 if (( TEST )); then
     python3 Tests/generate_sources.py
-    TEST_OBJECT_DIR="build/objects/tests"
+    TEST_OBJECT_DIR="build/objects/tests/$HOST_ARCH"
     mkdir -p "$TEST_OBJECT_DIR"
     TEST_SOURCES=(
         Sources/Vorssaint/Services/Media/MediaSupport.swift
@@ -587,7 +647,7 @@ if (( TEST )); then
     echo "▸ Building & running tests against $(basename "$SDK")…"
     swiftc -Onone -incremental -enable-batch-mode -j "$(sysctl -n hw.logicalcpu)" \
         -module-name VorssaintTests -output-file-map "$TEST_OUTPUT_FILE_MAP" \
-        -target "$TARGET" -sdk "$SDK" "${SDK_COMPAT_FLAGS[@]}" \
+        -target "$TEST_TARGET" -sdk "$SDK" "${SDK_COMPAT_FLAGS[@]}" \
         "${VM_STATISTICS_COMPAT_FLAGS[@]}" "${TEST_SOURCES[@]}" -o build/metrics-tests
     test_status=0
     ./build/metrics-tests "${TEST_ARGS[@]}" || test_status=$?
@@ -600,49 +660,75 @@ if (( TEST )); then
     exit $test_status
 fi
 
-echo "▸ Compiling ($BUILD_CONFIGURATION) against $(basename "$SDK")…"
+echo "▸ Compiling ($BUILD_CONFIGURATION, $(join_architectures)) against $(basename "$SDK")…"
 APP_SOURCES=(Sources/Vorssaint/**/*.swift)
 if (( ! DEV )); then
-    # A release starts from an empty build directory, so nothing an earlier
-    # build left behind (an old icon catalog, a staged bundle) can reach it.
-    # Only the compiler's incremental records stay: they rebuild whatever
-    # changed since, and a fresh checkout has none.
+    # A release starts from an empty artifact directory, so nothing an earlier
+    # build left behind (an old icon catalog or a staged bundle) can reach it.
+    # Keep architecture-specific incremental records for app and test builds.
     find build -mindepth 1 -maxdepth 1 ! -name objects -exec rm -rf {} + 2>/dev/null || true
 fi
-APP_OBJECT_DIR="build/objects/$EXECUTABLE"
-mkdir -p build "$APP_OBJECT_DIR"
-APP_OUTPUT_FILE_MAP="$APP_OBJECT_DIR/output-file-map.json"
-write_swift_output_file_map "$APP_OUTPUT_FILE_MAP" "$APP_OBJECT_DIR" "${APP_SOURCES[@]}"
-# Without -j the driver compiles one file at a time, and without batch mode
-# each file's compiler parses the whole module again: a clean release took a
-# quarter of an hour. Batches share that work and run on every core, and the
-# optimization stays per file, as before.
-swiftc "${APP_OPTIMIZATION_FLAGS[@]}" -incremental -enable-batch-mode -j "$(sysctl -n hw.logicalcpu)" \
-    -output-file-map "$APP_OUTPUT_FILE_MAP" \
-    -target "$TARGET" -sdk "$SDK" "${SDK_COMPAT_FLAGS[@]}" "${VM_STATISTICS_COMPAT_FLAGS[@]}" "${HID_EVENT_SYSTEM_FLAGS[@]}" \
-    "${BUILD_VARIANT_FLAGS[@]}" \
-    "${APP_SOURCES[@]}" -o "build/$EXECUTABLE"
+mkdir -p build
+APP_SLICES=()
+for ARCH in "${BUILD_ARCHS[@]}"; do
+    SLICE_DIR="build/architectures/$ARCH"
+    APP_OBJECT_DIR="build/objects/$EXECUTABLE/$ARCH"
+    mkdir -p "$SLICE_DIR"
+    mkdir -p "$APP_OBJECT_DIR"
+    APP_SLICE="$SLICE_DIR/$EXECUTABLE"
+    APP_SLICES+=("$APP_SLICE")
+    APP_OUTPUT_FILE_MAP="$APP_OBJECT_DIR/output-file-map.json"
+    write_swift_output_file_map "$APP_OUTPUT_FILE_MAP" "$APP_OBJECT_DIR" "${APP_SOURCES[@]}"
+    # Batch mode shares module parsing across files and compiles on every core.
+    # Swift's temporary object directory is not reliable for a module this
+    # large, so keep explicit incremental outputs. Each architecture has a
+    # separate directory: an ARM record must never be reused for an Intel slice.
+    swiftc "${APP_OPTIMIZATION_FLAGS[@]}" -incremental -enable-batch-mode -j "$(sysctl -n hw.logicalcpu)" \
+        -output-file-map "$APP_OUTPUT_FILE_MAP" \
+        -target "$ARCH-apple-macosx14.0" -sdk "$SDK" "${SDK_COMPAT_FLAGS[@]}" \
+        "${VM_STATISTICS_COMPAT_FLAGS[@]}" "${HID_EVENT_SYSTEM_FLAGS[@]}" \
+        "${BUILD_VARIANT_FLAGS[@]}" \
+        "${APP_SOURCES[@]}" -o "$APP_SLICE"
+done
+merge_architecture_slices "build/$EXECUTABLE" "${APP_SLICES[@]}"
 
 echo "▸ Compiling protected fan helper…"
-swiftc -O -target "$TARGET" -sdk "$SDK" "${SDK_COMPAT_FLAGS[@]}" "${BUILD_VARIANT_FLAGS[@]}" \
-    Sources/Vorssaint/Services/FanControl/FanControlSupport.swift \
-    Sources/Vorssaint/Services/FanControl/FanControlXPC.swift \
-    Sources/Vorssaint/Services/SystemMonitor/SMCClient.swift \
-    Sources/Vorssaint/Services/Metrics/TemperatureSensorSelector.swift \
-    Sources/Vorssaint/Services/FanControl/FanControlHardware.swift \
-    Sources/FanControlHelper/main.swift \
-    -o "build/$FAN_HELPER_ID"
-"build/$FAN_HELPER_ID" --selftest
+FAN_HELPER_SLICES=()
+for ARCH in "${BUILD_ARCHS[@]}"; do
+    FAN_HELPER_SLICE="build/architectures/$ARCH/$FAN_HELPER_ID"
+    FAN_HELPER_SLICES+=("$FAN_HELPER_SLICE")
+    swiftc -O -target "$ARCH-apple-macosx14.0" -sdk "$SDK" \
+        "${SDK_COMPAT_FLAGS[@]}" "${BUILD_VARIANT_FLAGS[@]}" \
+        Sources/Vorssaint/Services/FanControl/FanControlSupport.swift \
+        Sources/Vorssaint/Services/FanControl/FanControlXPC.swift \
+        Sources/Vorssaint/Services/SystemMonitor/SMCClient.swift \
+        Sources/Vorssaint/Services/Metrics/TemperatureSensorSelector.swift \
+        Sources/Vorssaint/Services/FanControl/FanControlHardware.swift \
+        Sources/FanControlHelper/main.swift \
+        -o "$FAN_HELPER_SLICE"
+done
+merge_architecture_slices "build/$FAN_HELPER_ID" "${FAN_HELPER_SLICES[@]}"
+if (( HOST_SLICE_AVAILABLE )); then
+    "build/$FAN_HELPER_ID" --selftest
+else
+    echo "  helper self-test skipped: no $HOST_ARCH slice in this cross-build"
+fi
 
 echo "▸ Compiling Now Playing adapter…"
-swiftc -O -target "$TARGET" -sdk "$SDK" "${SDK_COMPAT_FLAGS[@]}" -emit-library \
-    -module-name VorssaintNowPlaying \
-    Sources/NowPlayingAdapter/NowPlayingAdapter.swift \
-    Sources/NowPlayingAdapter/NowPlayingQueue.swift \
-    Sources/NowPlayingAdapter/NowPlayingSelection.swift \
-    Sources/Vorssaint/Services/Notch/NotchPlaybackSource.swift \
-    Sources/Vorssaint/Services/Notch/NotchPlaybackCommand.swift \
-    -o "build/$NOW_PLAYING_ADAPTER"
+NOW_PLAYING_SLICES=()
+for ARCH in "${BUILD_ARCHS[@]}"; do
+    NOW_PLAYING_SLICE="build/architectures/$ARCH/$NOW_PLAYING_ADAPTER"
+    NOW_PLAYING_SLICES+=("$NOW_PLAYING_SLICE")
+    swiftc -O -target "$ARCH-apple-macosx14.0" -sdk "$SDK" "${SDK_COMPAT_FLAGS[@]}" -emit-library \
+        -module-name VorssaintNowPlaying \
+        Sources/NowPlayingAdapter/NowPlayingAdapter.swift \
+        Sources/NowPlayingAdapter/NowPlayingQueue.swift \
+        Sources/NowPlayingAdapter/NowPlayingSelection.swift \
+        Sources/Vorssaint/Services/Notch/NotchPlaybackSource.swift \
+        Sources/Vorssaint/Services/Notch/NotchPlaybackCommand.swift \
+        -o "$NOW_PLAYING_SLICE"
+done
+merge_architecture_slices "build/$NOW_PLAYING_ADAPTER" "${NOW_PLAYING_SLICES[@]}"
 
 echo "▸ Generating app icon…"
 swift Tools/MakeIcon.swift build/AppIcon.iconset

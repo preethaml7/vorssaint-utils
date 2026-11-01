@@ -1,3 +1,5 @@
+> This is [preethaml7's development fork](https://github.com/preethaml7/vorssaint-utils), adding Intel macOS compatibility. Upstream project information follows below. No independently branded fork release is published yet; see [fork release preparation](docs/FORK-RELEASES.md).
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/logo-dark.svg">
@@ -26,7 +28,7 @@
   <a href="https://github.com/vorssaint/vorssaint-utils/releases"><img src="https://img.shields.io/github/v/release/vorssaint/vorssaint-utils?label=release&color=4c8dff" alt="Latest release"></a>
   <a href="https://github.com/vorssaint/vorssaint-utils/releases"><img src="https://img.shields.io/github/downloads/vorssaint/vorssaint-utils/total?color=4c8dff" alt="Downloads"></a>
   <a href="https://github.com/vorssaint/vorssaint-utils/actions/workflows/ci.yml"><img src="https://github.com/vorssaint/vorssaint-utils/actions/workflows/ci.yml/badge.svg?branch=main&event=push" alt="CI status"></a>
-  <a href="#what-you-need"><img src="https://img.shields.io/badge/macOS-14%2B%20Apple%20Silicon-black" alt="macOS 14 and newer, Apple Silicon"></a>
+  <a href="#what-you-need"><img src="https://img.shields.io/badge/macOS-14%2B%20Intel%20%26%20Apple%20Silicon-black" alt="macOS 14 and newer, Intel and Apple Silicon"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License GPL 3.0 or later"></a>
 </p>
 
@@ -226,7 +228,7 @@ See the [permissions guide](docs/PERMISSIONS.md) for which features need access 
 
 ## What you need
 
-- A Mac with Apple Silicon
+- An Intel or Apple Silicon Mac
 - macOS 14 Sonoma or newer
 
 ### Build it yourself
@@ -236,7 +238,19 @@ git clone https://github.com/vorssaint/vorssaint-utils.git
 cd vorssaint-utils
 ./build.sh --dev            # build the separate Developer variant
 ./build.sh --dev --install  # install and launch it
+./build.sh                  # build a universal release variant
 ```
+
+Release builds include `x86_64` and `arm64` slices for the app, fan-control helper,
+and Now Playing adapter. Developer builds and tests use the host architecture.
+Use `--arch=native`, `--arch=x86_64`, `--arch=arm64`, or `--arch=universal`
+to select an app build explicitly. Cross-builds skip helper execution when the
+host architecture is absent. Tests always compile and run for the host.
+
+Intel temperature discovery includes classic `TC*` CPU and `TG*` GPU sensors.
+Availability still depends on the Mac's firmware, devices, macOS version, and
+permissions. See [Intel validation evidence](docs/INTEL-VALIDATION.md) for the
+tested hardware and remaining verification gaps.
 
 Xcode Command Line Tools are the only requirement. The [contributing guide](CONTRIBUTING.md) covers the layout and conventions. Official builds come only from the maintainer: the GPL covers the source, while the Vorssaint name, icon and look are covered by [TRADEMARKS.md](TRADEMARKS.md), so forks need their own identity.
 

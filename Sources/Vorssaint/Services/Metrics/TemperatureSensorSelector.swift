@@ -181,7 +181,17 @@ enum TemperatureSensorSelector {
     static func isCPUTemperatureKey(_ key: String,
                                     platform: CPUTemperaturePlatform) -> Bool {
         if key.hasPrefix("Tp") || key.hasPrefix("Te") { return true }
-        return platform == .appleM3Family && key.hasPrefix("Tf")
+        if platform == .appleM3Family && key.hasPrefix("Tf") { return true }
+        // Intel AppleSMC uses the classic TC family (TC0P, TC0D, TC0E,
+        // TC1C, and model-specific peers). Generic also covers A-series Macs,
+        // so retain their Tp/Te path above instead of making the cases exclusive.
+        return platform == .generic && key.hasPrefix("TC")
+    }
+
+    /// Apple Silicon uses Tg keys while Intel AppleSMC uses TG. Keep the
+    /// distinction here so every temperature consumer discovers both layouts.
+    static func isGPUTemperatureKey(_ key: String) -> Bool {
+        key.hasPrefix("Tg") || key.hasPrefix("TG")
     }
 
     static func stabilizedTemperature(_ reading: Double?,
