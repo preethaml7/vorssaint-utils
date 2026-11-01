@@ -68,7 +68,7 @@ struct KeepAwakeIconPicker: View {
             Group {
                 if let image = BlackHoleGlyph.activeImage(style: icon, tint: selectedTint) {
                     Image(nsImage: image)
-                        .renderingMode(selectedTint == .none ? .template : .original)
+                        .renderingMode(image.isTemplate ? .template : .original)
                         .resizable()
                         .scaledToFit()
                         .foregroundStyle(.primary)
@@ -98,7 +98,7 @@ struct KeepAwakeIconPicker: View {
         .accessibilityLabel(title(icon))
     }
 
-    /// The Vorssaint choice draws whatever the menu bar shows, which can be a
+    /// The Perch choice draws whatever the menu bar shows, which can be a
     /// symbol chosen in the menu bar settings.
     private func title(_ icon: KeepAwakeActiveIcon) -> String {
         guard icon == .vorssaint,

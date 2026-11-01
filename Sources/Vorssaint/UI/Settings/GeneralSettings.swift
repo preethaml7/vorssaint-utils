@@ -316,7 +316,7 @@ struct MenuBarGlyph: View {
         Group {
             if let image = BlackHoleGlyph.mark(symbolName: Defaults.sanitizedMenuBarIconSymbol(symbolName)) {
                 Image(nsImage: image)
-                    .renderingMode(.template)
+                    .renderingMode(image.isTemplate ? .template : .original)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             } else {

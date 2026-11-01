@@ -46,7 +46,7 @@ enum CommandBarFeatureTests {
             static let general = Pasteboard()
             var accepts = true
             func clearContents() {}
-            func declareVorssaintSource() {}
+            func declarePerchSource() {}
             func setString(_ value: String, forType: Kind) -> Bool { accepts }
         }
         typealias NSPasteboard = Pasteboard
@@ -2292,7 +2292,7 @@ enum CommandBarFeatureTests {
         suite.expect(CommandBarLinks.trailingArgument(query: "gh vorssaint utils", name: "gh")
                 == "vorssaint utils",
                "what comes after the name is what the saved search opens with")
-        suite.expect(CommandBarLinks.trailingArgument(query: "GH Vorssaint", name: "gh") == "Vorssaint",
+        suite.expect(CommandBarLinks.trailingArgument(query: "GH Perch", name: "gh") == "Perch",
                "the name is matched without case; the argument keeps its own")
         suite.expect(CommandBarLinks.trailingArgument(query: "ghost writer", name: "gh") == nil
                 && CommandBarLinks.trailingArgument(query: "gh", name: "gh") == nil,

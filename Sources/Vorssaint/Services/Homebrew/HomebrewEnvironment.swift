@@ -43,7 +43,7 @@ enum HomebrewEnvironment {
     /// its exports and skip slow or interactive work, the way editors that read
     /// the shell environment mark their run: `[[ -n $VORSSAINT_RESOLVING_ENVIRONMENT ]]`.
     /// The run is a child of this app, so a protected folder a startup file
-    /// touches asks for access in Vorssaint's name.
+    /// touches asks for access in Perch's name.
     static let resolvingVariable = "VORSSAINT_RESOLVING_ENVIRONMENT"
 
     /// A login shell reads `~/.zprofile`; an interactive one also reads

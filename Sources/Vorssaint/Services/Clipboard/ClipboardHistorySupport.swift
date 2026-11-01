@@ -1058,12 +1058,12 @@ extension NSPasteboard.PasteboardType {
 }
 
 extension NSPasteboard {
-    /// Signs a write Vorssaint makes for itself (copied OCR text, a Command
+    /// Signs a write Perch makes for itself (copied OCR text, a Command
     /// Bar answer, a color), so the clipboard history does not credit it to
     /// whichever app happens to be in front. Called once the pasteboard is
     /// cleared, before or after the content: either way the mark joins the
     /// single item instead of adding one.
-    func declareVorssaintSource() {
+    func declarePerchSource() {
         guard let bundleID = Bundle.main.bundleIdentifier else { return }
         setString(bundleID, forType: .source)
     }

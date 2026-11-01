@@ -276,12 +276,12 @@ enum RadialNowPlayingApplication {
         return icon
     }
 
-    /// The island and the radial card are non-activating panels, so Vorssaint
+    /// The island and the radial card are non-activating panels, so Perch
     /// rarely holds activation when one is clicked. Since macOS 14 a bare
     /// request from an inactive app is refused, and the player stayed behind.
     static func open(_ snapshot: RadialNowPlayingSnapshot) {
         if let application = runningApplication(for: snapshot) {
-            // A helper takes no activation; the handoff would leave Vorssaint in front.
+            // A helper takes no activation; the handoff would leave Perch in front.
             guard application.activationPolicy == .regular else { return }
             // Read before the unhide below: a hidden player's windows come back with it.
             let showsNoWindow = !application.isHidden && !hasWindowOnScreen(pid: application.processIdentifier)
@@ -336,7 +336,7 @@ private final class MediaRemoteNowPlayingBridge {
     func fetch(completion: @escaping (RadialNowPlayingSnapshot?) -> Void) {
         guard let script = Bundle.main.url(forResource: "now-playing", withExtension: "pl"),
               let library = Bundle.main.privateFrameworksURL?
-                .appendingPathComponent("libVorssaintNowPlaying.dylib"),
+                .appendingPathComponent("libPerchNowPlaying.dylib"),
               FileManager.default.fileExists(atPath: library.path) else {
             completion(nil)
             return

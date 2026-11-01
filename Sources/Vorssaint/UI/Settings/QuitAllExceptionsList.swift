@@ -3,7 +3,7 @@
 
 import SwiftUI
 
-/// Apps "Quit all apps" leaves running. Mandatory rows (Finder, Vorssaint,
+/// Apps "Quit all apps" leaves running. Mandatory rows (Finder, Perch,
 /// Phone when installed) stay locked; everything else is picked like the other
 /// exception lists (issue #855).
 struct QuitAllExceptionsList: View {

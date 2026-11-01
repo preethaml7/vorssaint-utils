@@ -279,7 +279,7 @@ struct KillProcessView: View {
 
     private func copy(_ value: String) {
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.declareVorssaintSource()
+        NSPasteboard.general.declarePerchSource()
         NSPasteboard.general.setString(value, forType: .string)
     }
 

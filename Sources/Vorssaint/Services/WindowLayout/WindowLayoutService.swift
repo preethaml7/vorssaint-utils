@@ -1614,7 +1614,7 @@ final class WindowLayoutService: ObservableObject {
             // that serves the taps. It happens only for a release over a snap
             // zone, once the window server shows the window followed the
             // pointer, so the release of a drag inside an app never asks that
-            // app. A modifier move needs no such evidence: Vorssaint moved
+            // app. A modifier move needs no such evidence: Perch moved
             // that window itself. Its release only skips a lookup that has
             // already come back empty every time it was tried.
             let lookupsExhausted = edgeSnapResolveAttempts >= edgeSnapResolveAttemptLimit && !edgeSnapResolving
@@ -1757,7 +1757,7 @@ final class WindowLayoutService: ObservableObject {
                 self.edgeSnapResolving = false
                 guard let resolved, self.edgeSnapDrag == nil,
                       self.edgeSnapPressCandidate != nil else { return }
-                // A modifier move is moving from the start: Vorssaint moves that
+                // A modifier move is moving from the start: Perch moves that
                 // window, so the window server is never asked to confirm it.
                 self.edgeSnapDrag = WindowEdgeSnapDrag(window: resolved.window,
                                                        key: resolved.key,

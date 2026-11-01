@@ -103,12 +103,12 @@ enum QuickTogglesSupport {
 
     // MARK: - Quit all apps
 
-    /// Vorssaint's own identifiers, including the local signing variant. Quitting
+    /// Perch's own identifiers, including the local signing variant. Quitting
     /// ourselves mid-sweep would leave the remaining apps running with no way
     /// to finish the pass from here.
     static let vorssaintBundleIdentifiers = [
-        "com.vorssaint.utils",
-        "com.vorssaint.utils.dev",
+        "io.protopanda.perch",
+        "io.protopanda.perch.dev",
     ]
 
     /// `NSApplication.ActivationPolicy.regular.rawValue`. Kept as an Int so this
@@ -116,7 +116,7 @@ enum QuickTogglesSupport {
     static let regularActivationPolicy = 0
 
     /// Kept apps always start with Auto Quit's locked pair, Finder and Phone.
-    /// Vorssaint is never stored: the quit rules leave it alone by themselves.
+    /// Perch is never stored: the quit rules leave it alone by themselves.
     static func sanitizedQuitAllExceptions(_ bundleIDs: [String]) -> [String] {
         Defaults.sanitizedBundleIdentifierList(Defaults.mandatoryAutoQuitExceptionBundleIDs + bundleIDs)
             .filter { !vorssaintBundleIdentifiers.contains($0) }
@@ -136,7 +136,7 @@ enum QuickTogglesSupport {
     }
 
     /// Whether the Quit apps window lists a running app. Finder relaunches
-    /// itself and Vorssaint owns the window, so neither gets a row; other
+    /// itself and Perch owns the window, so neither gets a row; other
     /// exceptions are listed (marked kept) so they can still be quit by hand.
     static func listsApp(bundleIdentifier: String?,
                          activationPolicyRawValue: Int,

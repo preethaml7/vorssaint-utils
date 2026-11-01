@@ -428,7 +428,7 @@ enum MixerRoutingSupport {
                                volumes: volumes)
     }
 
-    /// Vorssaint's own AirPlay entry, streamed through the system route picker.
+    /// Perch's own AirPlay entry, streamed through the system route picker.
     /// Exact match only: real AirPlay devices macOS exposes are ordinary outputs
     /// and route through the normal tap, and a device name or UID that merely
     /// mentions AirPlay must never be mistaken for this entry.

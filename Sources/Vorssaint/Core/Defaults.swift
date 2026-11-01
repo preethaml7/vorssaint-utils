@@ -254,7 +254,7 @@ enum DefaultsKey {
     static let startupDidNotFinish = "startupDidNotFinish"
     static let bluetoothSleepEnabled = "bluetoothSleepEnabled"
     static let bluetoothSleepRestoreOnWake = "bluetoothSleepRestoreOnWake"
-    // Set only while Vorssaint owes a Bluetooth restore, so a Mac shut down
+    // Set only while Perch owes a Bluetooth restore, so a Mac shut down
     // while asleep still gets it back on the next launch.
     static let bluetoothSleepRestorePending = "bluetoothSleepRestorePending"
     static let musicBlockEnabled = "musicBlockEnabled"
@@ -680,7 +680,7 @@ enum DefaultsKey {
     static let screenshotClipboardShortcutEnabled = "screenshotClipboardShortcutEnabled"
     static let screenshotClipboardShortcut = "screenshotClipboardShortcut"
     static let screenshotFreeze = "screenshotFreeze"
-    static let screenshotHideVorssaintWindows = "screenshotHideVorssaintWindows"
+    static let screenshotHidePerchWindows = "screenshotHidePerchWindows"
     static let screenshotSaveFolder = "screenshotSaveFolder"
     static let screenshotSaveSubfolder = "screenshotSaveSubfolder"
     static let screenshotFileNamePattern = "screenshotFileNamePattern"
@@ -1127,7 +1127,7 @@ enum KeepAwakeActiveIcon: String, CaseIterable, Identifiable {
 
     func title(_ strings: Strings) -> String {
         switch self {
-        case .vorssaint: return strings.keepAwakeActiveIconVorssaint
+        case .vorssaint: return strings.keepAwakeActiveIconPerch
         case .coffee: return strings.keepAwakeActiveIconCoffee
         case .eye: return strings.keepAwakeActiveIconEye
         case .moon: return strings.keepAwakeActiveIconMoon
@@ -1902,7 +1902,7 @@ enum Defaults {
         DefaultsKey.screenshotClipboardShortcutEnabled: false,
         DefaultsKey.screenshotClipboardShortcut: GlobalShortcut.screenshotClipboardDefault.storageValue,
         DefaultsKey.screenshotFreeze: true,
-        DefaultsKey.screenshotHideVorssaintWindows: true,
+        DefaultsKey.screenshotHidePerchWindows: true,
         DefaultsKey.screenshotSaveFolder: "",
         DefaultsKey.screenshotSaveSubfolder: "",
         DefaultsKey.screenshotFileNamePattern: "",
@@ -2503,14 +2503,14 @@ enum Defaults {
     }
 
     /// A typed symbol name without the spaces around it; empty keeps the
-    /// Vorssaint glyph. Whether this Mac has the symbol is left to the menu
+    /// Perch glyph. Whether this Mac has the symbol is left to the menu
     /// bar drawing, since a backup can carry a name from a newer macOS.
     static func sanitizedMenuBarIconSymbol(_ rawValue: String?) -> String {
         rawValue?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     }
 
     /// What the menu bar icon field saves as it is typed: a name this Mac has
-    /// a symbol for, nothing for the Vorssaint icon, and otherwise the name
+    /// a symbol for, nothing for the Perch icon, and otherwise the name
     /// the field opened with, so a typo never leaves a valid half behind.
     static func menuBarIconSymbolToSave(typed: String?, opening: String,
                                         exists: (String) -> Bool) -> String {
@@ -2518,7 +2518,7 @@ enum Defaults {
         return name.isEmpty || exists(name) ? name : opening
     }
 
-    /// The symbols the menu bar icon gallery offers after the Vorssaint icon:
+    /// The symbols the menu bar icon gallery offers after the Perch icon:
     /// solid shapes that still read at menu bar size, all present on macOS 14
     /// (some under older names, which later versions still accept). Keep
     /// Awake's symbols stay out, so an active session still stands out.

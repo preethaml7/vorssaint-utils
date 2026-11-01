@@ -1060,7 +1060,7 @@ enum CommandBarCatalog {
     // MARK: - Running apps and their windows
 
     /// Menu commands of the app in front, each one runnable and each one
-    /// showing its own shortcut. This is how the bar reaches past Vorssaint
+    /// showing its own shortcut. This is how the bar reaches past Perch
     /// without searching files or the internet.
     static func menuEntries(_ items: [CommandBarMenuItem],
                             appName: String,
@@ -1374,7 +1374,7 @@ enum CommandBarCatalog {
     private static func copyAnswer(_ value: String) {
         GeneralPasteboardAccess.shared.async({
             NSPasteboard.general.clearContents()
-            NSPasteboard.general.declareVorssaintSource()
+            NSPasteboard.general.declarePerchSource()
             return NSPasteboard.general.setString(value, forType: .string)
         }, then: { copied in
             QuickToolHUD.show(icon: copied ? "doc.on.doc" : "exclamationmark.circle",

@@ -6,7 +6,7 @@ import Combine
 import SwiftUI
 
 extension Notification.Name {
-    static let menuPanelWillShow = Notification.Name("VorssaintMenuPanelWillShow")
+    static let menuPanelWillShow = Notification.Name("PerchMenuPanelWillShow")
 }
 
 struct MenuPanelFocusRequest: Equatable {

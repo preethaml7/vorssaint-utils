@@ -61,7 +61,7 @@ struct GeneralToolSettings: View {
     }
 }
 
-/// Draws a system symbol in the menu bar in place of the Vorssaint glyph,
+/// Draws a system symbol in the menu bar in place of the Perch glyph,
 /// picked with one click from a gallery. The last cell takes any other symbol
 /// by name, and shows that symbol while it is the one in use.
 private struct MenuBarIconSymbolRow: View {
@@ -124,7 +124,7 @@ private struct MenuBarIconSymbolRow: View {
         Group {
             if let mark = BlackHoleGlyph.mark(symbolName: "") {
                 Image(nsImage: mark)
-                    .renderingMode(.template)
+                    .renderingMode(mark.isTemplate ? .template : .original)
                     .resizable()
                     .scaledToFit()
             } else {

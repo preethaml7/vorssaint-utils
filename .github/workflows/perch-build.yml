@@ -1,0 +1,78 @@
+name: Perch build and draft release
+
+on:
+  workflow_dispatch:
+    inputs:
+      draft_tag:
+        description: Optional new tag for a draft release; leave empty to build artifacts only
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.repository == 'preethaml7/vorssaint-utils'
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Build universal Perch
+        run: ./build.sh
+      - name: Verify native execution and universal slices
+        run: |
+          ./build/Perch --selftest
+          ./build/io.protopanda.perch.fan-control --selftest
+          for binary in build/Perch build/io.protopanda.perch.fan-control build/libPerchNowPlaying.dylib; do
+            xcrun lipo "$binary" -verify_arch arm64 x86_64
+          done
+          codesign --verify --deep --strict build/stage/Perch.app
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' build/stage/Perch.app/Contents/Info.plist)" = io.protopanda.perch
+          test "$(/usr/libexec/PlistBuddy -c 'Print CFBundleExecutable' build/stage/Perch.app/Contents/Info.plist)" = Perch
+          test -s build/stage/Perch.app/Contents/Resources/LICENSE
+          test -s build/stage/Perch.app/Contents/Resources/ATTRIBUTION.md
+          test ! -e build/stage/Perch.app/Contents/Resources/Assets.car
+      - name: Test
+        run: ./build.sh --test
+      - name: Package
+        run: |
+          ./Tools/make-dmg.sh
+          cd dist
+          shasum -a 256 Perch-*.dmg > SHA256SUMS
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: perch-universal
+          path: |
+            dist/Perch-*.dmg
+            dist/SHA256SUMS
+          if-no-files-found: error
+
+  draft:
+    needs: build
+    if: inputs.draft_tag != '' && github.repository == 'preethaml7/vorssaint-utils'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: perch-universal
+          path: dist
+      - name: Create draft only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.draft_tag }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^perch-v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]] || exit 1
+          cd dist
+          shasum -a 256 -c SHA256SUMS
+          gh release create "$RELEASE_TAG" Perch-*.dmg SHA256SUMS \
+            --target "$RELEASE_COMMIT" --draft --prerelease \
+            --title "Perch $RELEASE_TAG — unofficial Intel compatibility fork" \
+            --notes 'Perch is an unofficial fork of Vorssaint, originally built by Vorssaint and its contributors: https://github.com/vorssaint/vorssaint-utils . This fork adds Intel compatibility for an older Mac. These builds are not Apple notarized; automatic updates are disabled. Review validation and ATTRIBUTION.md before publishing.'
