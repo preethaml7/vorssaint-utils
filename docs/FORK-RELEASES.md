@@ -6,11 +6,10 @@ Intel support and universal packaging are ready for review. The existing
 maintainer, signing team, and protected environment. Merely changing its
 repository condition would not make it usable in this fork.
 
-The fork owner's requested public name is **Vorssaint (Intel)**, presented as
-an unofficial build with a link to this repository. This still uses the upstream
-trademark; obtain upstream permission for that name before public distribution,
-or choose an independent name. The Intel-support PR does not rename the runtime
-or publish the existing personal DMG.
+The proposed independent public name is **CopperBar**, pending the fork owner's
+selection and a name availability check. The owner decided to choose a distinct
+name after reviewing the upstream branding requirement. The Intel-support PR
+does not rename the runtime or publish the existing personal DMG.
 
 ## Before distributing a fork DMG
 

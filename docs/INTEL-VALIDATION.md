@@ -30,6 +30,9 @@ battery  TB2T  sp78   36.70
 ```
 
 The diagnostic now uses the same CPU/GPU selectors as the monitor and fan helper.
+After rebuilding the diagnostic on this Mac, it read CPU keys including TC0E,
+TC0F, TC0P, TC1C through TC6C, TCGC, TCMX, TCSA and TCXC, and GPU keys TG0P,
+TGDD, TGDF and TGVP. The subsequent live self-test returned `SELFTEST OK`.
 CPU discovery accepts classic TC keys on the generic platform, and GPU discovery
 accepts TG as well as Tg. Tests cover those discovery boundaries. The self-test
 stopped reporting its previous `no SMC temperature keys` warning after the fix.
