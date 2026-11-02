@@ -1903,24 +1903,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
 
     func openFeedbackWindow(kind: FeedbackKind = .bug) {
         closePopover()
-        let host = NSHostingController(rootView: FeedbackView(initialKind: kind) { [weak self] in
-            self?.feedbackWindow?.close()
-        })
-        if let window = feedbackWindow {
-            window.contentViewController = host
-        } else {
-            let window = NSWindow(contentViewController: host)
-            window.styleMask = [.titled, .closable]
-            window.titleVisibility = .hidden
-            window.isReleasedWhenClosed = false
-            window.isRestorable = false
-            window.delegate = self
-            window.center()
-            feedbackWindow = window
-        }
-        feedbackWindow?.title = FeatureStrings.feedback(L10n.shared.language).windowTitle
-        NSApp.activate(ignoringOtherApps: true)
-        feedbackWindow?.makeKeyAndOrderFront(nil)
+        // Fork reports belong to this repository, not the upstream hosted inbox.
+        var destination = URLComponents(
+            url: AppInfo.repositoryURL.appendingPathComponent("issues/new"),
+            resolvingAgainstBaseURL: false)!
+        destination.queryItems = [
+            URLQueryItem(name: "template",
+                         value: kind == .bug ? "bug_report.yml" : "feature_request.yml")
+        ]
+        if let url = destination.url { NSWorkspace.shared.open(url) }
     }
 
     private func positionSettingsWindow(_ window: NSWindow, force: Bool, on targetScreen: NSScreen? = nil) {

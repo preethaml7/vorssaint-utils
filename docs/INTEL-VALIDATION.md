@@ -43,3 +43,27 @@ Silicon hardware. The full test run emitted existing Swift warnings and SwiftUI
 AttributeGraph diagnostics despite passing. Local artifacts are self-signed,
 not Apple Developer ID notarized. These checks do not guarantee every feature
 works on every Intel Mac.
+
+## Final Perch artifact (2026-11-01)
+
+The final universal release build includes the approved bird app icon and Apple
+panda menu assets, uses `io.protopanda.perch`, and is locally signed with the
+independent `Perch Utils Signing` identity. App and fan-helper self-tests pass.
+The completed DMG was mounted read-only: its bundle passes deep/strict signature
+verification, its app/helper/Now Playing adapter each contain x86_64 and arm64,
+and its license and attribution are present. The upstream adaptive icon catalog
+is absent. This build is self-signed, not notarized.
+
+An initial post-rename full run reported 29 failures out of 119,801 checks during
+concurrent compilation. Follow-up work fixed fork identity protection, reduced
+screenshot matching overhead while retaining the original timing assertion, and
+gave Intel recorder export fixtures a longer watchdog with cancellation on
+timeout. The final affected-suite reruns passed 8,903 checks across screenshots,
+recorder, utilities, uninstaller, app management, app updates, cleaner, features,
+agents, and command bar. All three shell regression scripts also passed in the
+initial full run. The entire full suite was not rerun after these fixes; the
+earlier 119,800-pass result above predates the Perch rename.
+
+Final installer: `dist/Perch-3.4.3.dmg`.
+SHA-256: `b6f4f63df3491bfc43b3df1a3f557ef82dbb99815820c5724856f1187aee43ac`.
+The hardware and manual-verification limits above still apply.
