@@ -56,11 +56,14 @@ Perch does not grant permissions automatically or replace the original app.
 
 ## Releases
 
-Download Perch DMGs from [this fork’s releases](https://github.com/preethaml7/vorssaint-utils/releases). Read the release notes for signing details and validation limits. Initial preview builds use a separate Perch self-signed certificate and are **not Apple-notarized**. CI artifacts use ad-hoc signing and cannot authenticate the privileged fan helper; use a certificate-signed release or build with your own stable Perch certificate for that feature. Automatic self-installing updates are disabled; the update button opens this fork’s releases page.
+[Download Perch 3.4.3 for macOS (DMG)](https://github.com/preethaml7/vorssaint-utils/releases/download/perch-v3.4.3/Perch-3.4.3.dmg) — a regular release with Intel and Apple Silicon binaries. See the [release notes and checksum](https://github.com/preethaml7/vorssaint-utils/releases/tag/perch-v3.4.3) or [all releases](https://github.com/preethaml7/vorssaint-utils/releases).
+
+Perch 3.4.3 uses a separate Perch self-signed certificate and is **not Apple Developer ID signed or Apple-notarized**. Testing does not cover every hardware feature or permission flow; see the release notes and [validation evidence](docs/INTEL-VALIDATION.md). CI artifacts use ad-hoc signing and cannot authenticate the privileged fan helper; use a certificate-signed release or build with your own stable Perch certificate for that feature. Automatic self-installing updates are disabled; the update button opens this fork’s releases page.
 
 The manual **Perch build and draft release** workflow builds universal artifacts.
 An optional `perch-vX.Y.Z` tag creates a **draft prerelease** for review. It does
-not publish a public release automatically. See [release instructions](docs/FORK-RELEASES.md).
+not publish a public release automatically. For a regular release, clear the
+prerelease flag when publishing the reviewed draft. See [release instructions](docs/FORK-RELEASES.md).
 
 ## Contribute and follow along
 
