@@ -439,6 +439,9 @@ enum AppManagementFeatureTests {
                "system domains and this app can never be junk owners")
         suite.expect(!CleanerSupport.isProtectedBundleID("com.vendor.editor"),
                "third party identifiers are eligible for the leftover check")
+        suite.expect(CleanerSupport.isProtectedBundleID("io.protopanda.perch.dev")
+               && !CleanerSupport.isProtectedBundleID("io.protopanda.perchtools"),
+               "Perch protection includes its developer bundle without protecting a lookalike identifier")
         suite.expect(UninstallerSupport.verifiedBundleID("com.vendor.editor") == "com.vendor.editor"
                && UninstallerSupport.verifiedBundleID("com.vendor.editor.helper") == "com.vendor.editor.helper"
                && UninstallerSupport.verifiedBundleID("test.editor") == "test.editor"

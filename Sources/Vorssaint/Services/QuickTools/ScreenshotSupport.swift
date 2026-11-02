@@ -629,17 +629,28 @@ enum ScreenshotSupport {
               columns.upperBound <= lhs.width,
               !columns.isEmpty else { return .infinity }
         let topInset = max(0, lhs.height / 24)
-        var difference = 0
-        var count = 0
-        for row in topInset..<(lhs.height - topInset) {
-            let start = row * lhs.width
-            for column in columns {
-                difference += abs(Int(lhs.pixels[start + column])
-                    - Int(rhs.pixels[start + column]))
-                count += 1
+        let lastRow = lhs.height - topInset
+        let count = (lastRow - topInset) * columns.count
+        guard count > 0 else { return .infinity }
+        // Hold each backing buffer once. Repeated Array property/subscript
+        // access in the inner loop is costly in native Intel developer builds.
+        return lhs.pixels.withUnsafeBufferPointer { left in
+            rhs.pixels.withUnsafeBufferPointer { right in
+                let a = left.baseAddress!, b = right.baseAddress!
+                var difference = 0
+                var row = topInset
+                while row < lastRow {
+                    var index = row * lhs.width + columns.lowerBound
+                    let end = row * lhs.width + columns.upperBound
+                    while index < end {
+                        difference += abs(Int(a[index]) - Int(b[index]))
+                        index += 1
+                    }
+                    row += 1
+                }
+                return Double(difference) / Double(count)
             }
         }
-        return count > 0 ? Double(difference) / Double(count) : .infinity
     }
 
     private struct ScrollingCandidate {
@@ -762,10 +773,12 @@ enum ScreenshotSupport {
         var totalDifference: Float = 0
         let threshold = Float(columns.count * 8)
         rowDifferences.withUnsafeBufferPointer { rows in
+            let values = rows.baseAddress!
             var row = 0
             while row < rowCount {
-                if rows[row] <= threshold {
-                    totalDifference += rows[row]
+                let value = values[row]
+                if value <= threshold {
+                    totalDifference += value
                     run += 1
                     matchingRows += 1
                     if run > longestRun { longestRun = run }

@@ -790,7 +790,8 @@ enum UninstallerSupport {
     /// Perch's own identifiers, among the protected ones.
     private static func isOwnBundleID(_ id: String) -> Bool {
         let lowered = id.lowercased()
-        return lowered == "com.vorssaint" || lowered.hasPrefix("com.vorssaint.")
+        return lowered == "io.protopanda.perch" || lowered.hasPrefix("io.protopanda.perch.")
+            || lowered == "com.vorssaint" || lowered.hasPrefix("com.vorssaint.")
             || lowered.hasPrefix("vorss.")
     }
 

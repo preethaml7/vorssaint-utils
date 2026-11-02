@@ -867,7 +867,9 @@ final class AppUpdatesService: ObservableObject {
     /// package manager replace a running bundle is exactly what that updater
     /// exists to do safely.
     private static func isOwnBundle(_ bundleID: String) -> Bool {
-        bundleID == Bundle.main.bundleIdentifier || bundleID.hasPrefix("com.vorssaint")
+        bundleID == Bundle.main.bundleIdentifier
+            || bundleID == "io.protopanda.perch" || bundleID.hasPrefix("io.protopanda.perch.")
+            || bundleID.hasPrefix("com.vorssaint")
     }
 
     private static let ownPackageTokens: Set<String> = ["vorssaint", "vorssaint@beta", "vorssaint-beta"]
