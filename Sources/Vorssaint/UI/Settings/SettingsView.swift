@@ -778,6 +778,11 @@ struct AboutSettings: View {
             Text(AppInfo.copyright)
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
+            Text(AppInfo.attribution)
+                .font(.caption)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+            Link("Original project: Vorssaint", destination: AppInfo.upstreamURL)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)

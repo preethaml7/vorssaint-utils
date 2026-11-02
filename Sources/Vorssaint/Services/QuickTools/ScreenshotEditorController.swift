@@ -1712,7 +1712,7 @@ final class ScreenshotEditorController: NSObject, NSWindowDelegate {
             item.setData(tiff, forType: .tiff)
         }
         guard pasteboard.writeObjects([item]) else { return false }
-        pasteboard.declareVorssaintSource()
+        pasteboard.declarePerchSource()
         return true
     }
 
@@ -1745,7 +1745,7 @@ final class ScreenshotEditorController: NSObject, NSWindowDelegate {
             item.setData(tiff, forType: .tiff)
         }
         guard pasteboard.writeObjects([item]) else { return false }
-        pasteboard.declareVorssaintSource()
+        pasteboard.declarePerchSource()
         return true
     }
 
@@ -1820,7 +1820,7 @@ final class ScreenshotEditorController: NSObject, NSWindowDelegate {
         guard !text.isEmpty else { return }
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        pasteboard.declareVorssaintSource()
+        pasteboard.declarePerchSource()
         pasteboard.setString(text, forType: .string)
         QuickToolHUD.show(icon: "text.viewfinder", message: L10n.shared.s.ocrCopied)
     }

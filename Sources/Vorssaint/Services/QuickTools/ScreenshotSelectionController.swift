@@ -59,7 +59,7 @@ final class ScreenshotSelectionController {
     private var freeze: Bool
     private var includePointer: Bool
     private let showLastRegion: Bool
-    private var hideVorssaintWindows: Bool
+    private var hidePerchWindows: Bool
     private let otherProtectedWindowIDs: () -> Set<CGWindowID>
     private let baseMode: Mode
     private let supportsScrollingCapture: Bool
@@ -172,7 +172,7 @@ final class ScreenshotSelectionController {
     init(freeze: Bool,
          includePointer: Bool,
          showLastRegion: Bool,
-         hideVorssaintWindows: Bool = true,
+         hidePerchWindows: Bool = true,
          protectedWindowIDs: @escaping () -> Set<CGWindowID> = { [] },
          purpose: String? = nil,
          mode: Mode = .image,
@@ -182,7 +182,7 @@ final class ScreenshotSelectionController {
         self.freeze = freeze
         self.includePointer = includePointer
         self.showLastRegion = showLastRegion
-        self.hideVorssaintWindows = hideVorssaintWindows
+        self.hidePerchWindows = hidePerchWindows
         self.otherProtectedWindowIDs = protectedWindowIDs
         self.purpose = purpose
         self.baseMode = mode
@@ -197,8 +197,8 @@ final class ScreenshotSelectionController {
         self.capturePolicy = ScreenshotSupport.UnifiedCapturePolicy(
             freeze: freeze,
             includePointer: includePointer,
-            hideVorssaintWindows: hideVorssaintWindows,
-            keepsContentWindowsOut: hideVorssaintWindows
+            hidePerchWindows: hidePerchWindows,
+            keepsContentWindowsOut: hidePerchWindows
                 || screenCaptureOptions?.selectedTool == .recording,
             usesGeometry: mode == .geometry)
         defaults.set(Double(loupeZoom), forKey: DefaultsKey.screenshotLoupeLastZoom)
@@ -227,7 +227,7 @@ final class ScreenshotSelectionController {
                 guard let self else { return }
                 let images = await ScreenshotCaptureEngine.captureAllDisplays(
                     includePointer: self.includePointer,
-                    hideVorssaintWindows: self.hideVorssaintWindows,
+                    hidePerchWindows: self.hidePerchWindows,
                     protectedWindowIDs: self.captureExcludedWindowIDs)
                 guard !images.isEmpty else {
                     self.finish(.failed)
@@ -243,7 +243,7 @@ final class ScreenshotSelectionController {
     private func present(frozenImages: [CGDirectDisplayID: CGImage]) {
         guard !finished else { return }
         let pickable = ScreenshotCaptureEngine.pickableWindows(
-            hideVorssaintWindows: hideVorssaintWindows,
+            hidePerchWindows: hidePerchWindows,
             protectedWindowIDs: captureExcludedWindowIDs)
         let mainHeight = NSScreen.screens.first?.frame.height ?? 0
 
@@ -303,8 +303,8 @@ final class ScreenshotSelectionController {
                 for: activeTool,
                 screenshotFreeze: defaults.bool(forKey: DefaultsKey.screenshotFreeze),
                 screenshotIncludePointer: defaults.bool(forKey: DefaultsKey.screenshotIncludePointer),
-                screenshotHideVorssaintWindows: defaults.bool(
-                    forKey: DefaultsKey.screenshotHideVorssaintWindows))
+                screenshotHidePerchWindows: defaults.bool(
+                    forKey: DefaultsKey.screenshotHidePerchWindows))
             if !nextPolicy.sharesSource(with: capturePolicy) {
                 adoptCapturePolicy(nextPolicy)
             }
@@ -324,7 +324,7 @@ final class ScreenshotSelectionController {
         capturePolicy = policy
         freeze = policy.freeze
         includePointer = policy.includePointer
-        hideVorssaintWindows = policy.hideVorssaintWindows
+        hidePerchWindows = policy.hidePerchWindows
         sourceRefreshPending = true
         sourceGeneration += 1
         let generation = sourceGeneration
@@ -336,7 +336,7 @@ final class ScreenshotSelectionController {
             guard let self else { return }
             let images = await ScreenshotCaptureEngine.captureAllDisplays(
                 includePointer: policy.includePointer,
-                hideVorssaintWindows: policy.hideVorssaintWindows,
+                hidePerchWindows: policy.hidePerchWindows,
                 protectedWindowIDs: self.captureExcludedWindowIDs)
             guard !self.finished, self.sourceGeneration == generation else { return }
             self.applySource(frozenImages: images)
@@ -351,7 +351,7 @@ final class ScreenshotSelectionController {
             return
         }
         let pickable = ScreenshotCaptureEngine.pickableWindows(
-            hideVorssaintWindows: hideVorssaintWindows,
+            hidePerchWindows: hidePerchWindows,
             protectedWindowIDs: captureExcludedWindowIDs)
         let mainHeight = NSScreen.screens.first?.frame.height ?? 0
         for panel in panels {
@@ -393,12 +393,12 @@ final class ScreenshotSelectionController {
     /// excludes this app's own panels, so the screen itself remains live.
     private func loadLiveLoupeImages() {
         let generation = sourceGeneration
-        let hideWindows = hideVorssaintWindows
+        let hideWindows = hidePerchWindows
         let excludedIDs = captureExcludedWindowIDs
         Task { @MainActor [weak self] in
             let images = await ScreenshotCaptureEngine.captureAllDisplays(
                 includePointer: false,
-                hideVorssaintWindows: hideWindows,
+                hidePerchWindows: hideWindows,
                 protectedWindowIDs: excludedIDs)
             guard let self, !self.finished, self.sourceGeneration == generation else { return }
             for panel in self.panels {
@@ -790,7 +790,7 @@ final class ScreenshotSelectionController {
             guard var image = await ScreenshotCaptureEngine.captureDisplay(
                 displayID,
                 includePointer: self.includePointer,
-                hideVorssaintWindows: self.hideVorssaintWindows,
+                hidePerchWindows: self.hidePerchWindows,
                 protectedWindowIDs: self.captureExcludedWindowIDs)
             else {
                 self.finish(.failed)

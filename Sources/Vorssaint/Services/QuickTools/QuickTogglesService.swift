@@ -41,7 +41,7 @@ final class QuickTogglesService: ObservableObject {
     @Published private(set) var othersShortcutRegistrationFailed = false
     @Published private(set) var quitAllExceptions: [String] = []
 
-    private let workQueue = DispatchQueue(label: "com.vorssaint.utils.quick-toggles", qos: .userInitiated)
+    private let workQueue = DispatchQueue(label: "io.protopanda.perch.quick-toggles", qos: .userInitiated)
     private let hotkey = QuickToolHotkey(id: 63)
     private let othersHotkey = QuickToolHotkey(id: 62)
 
@@ -151,7 +151,7 @@ final class QuickTogglesService: ObservableObject {
     }
 
     /// Soft quit only: `terminate()`, never `forceTerminate()`, so unsaved
-    /// document sheets still appear. Finder, Phone, Vorssaint, any app the user
+    /// document sheets still appear. Finder, Phone, Perch, any app the user
     /// listed as an exception and `keepingPID` are left alone.
     func quitAllApps(keepingPID: pid_t?) {
         guard quitAppsAvailable, beginRun(.quitAllApps) else { return }

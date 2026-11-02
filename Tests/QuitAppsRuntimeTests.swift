@@ -108,7 +108,7 @@ enum QuitAppsRuntimeTests {
             service.quitAllExceptions = Defaults.mandatoryAutoQuitExceptionBundleIDs
             AppKit.NSApp.setActivationPolicy(policy)
         }
-        let own = NSRunningApplication(ProcessInfo.processInfo.processIdentifier, "com.vorssaint.utils.dev")
+        let own = NSRunningApplication(ProcessInfo.processInfo.processIdentifier, "io.protopanda.perch.dev")
         let first = NSRunningApplication(10, "test.first")
         let second = NSRunningApplication(11, "test.second")
         let kept = NSRunningApplication(12, "test.kept")

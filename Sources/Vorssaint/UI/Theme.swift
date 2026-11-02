@@ -237,7 +237,7 @@ struct BrandMark: View {
     var body: some View {
         if let mark = Self.mark {
             Image(nsImage: mark)
-                .renderingMode(.template)
+                .renderingMode(.original)
                 .interpolation(.high)
                 .antialiased(true)
                 .resizable()
@@ -280,11 +280,7 @@ struct BrandBadge: View {
     var size: CGFloat
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
-                .fill(Theme.spaceGradient)
-            BrandMark(width: size * 0.8)
-        }
+        BrandMark(width: size)
         .frame(width: size, height: size)
     }
 }

@@ -57,9 +57,9 @@ final class StatusItemController {
     /// so bind() only touches it once the feature is actually available,
     /// rather than for every launch regardless of whether anyone uses it.
     private var clipboardBindingsInstalled = false
-    private static let mainAutosaveName = "VorssaintMenuBarItem"
-    private static let metricAutosavePrefix = "VorssaintMetric"
-    private static let clipboardPreviewAutosaveName = "VorssaintClipboardPreview"
+    private static let mainAutosaveName = "PerchMenuBarItem"
+    private static let metricAutosavePrefix = "PerchMetric"
+    private static let clipboardPreviewAutosaveName = "PerchClipboardPreview"
     private static let emptyStatusImage = NSImage()
 
     /// One separate menu bar item: a metric, or a metric with its temperature
@@ -907,7 +907,7 @@ enum BlackHoleGlyph {
             image.addRepresentation(rep)
         }
         guard !image.representations.isEmpty else { return nil }
-        image.isTemplate = true
+        image.isTemplate = false // Preserve Apple panda emoji shading.
         return image
     }()
 
@@ -946,6 +946,9 @@ enum BlackHoleGlyph {
             source = mark()
         }
         guard let source else { return fallback(active: tint != .none) }
+        // The default panda is a full-color emoji, not a silhouette. Only
+        // selected SF Symbols participate in template tinting.
+        if source === base { return source }
         guard let color = color(for: tint) else {
             source.isTemplate = true
             return source

@@ -4,7 +4,7 @@
 import AppKit
 import IOKit.pwr_mgt
 
-/// Quick subsystem check, run with `Vorssaint --selftest`.
+/// Quick subsystem check, run with `Perch --selftest`.
 /// Core capabilities fail the test; hardware-dependent readings only warn.
 enum SelfTest {
     static func runAndExit() -> Never {
@@ -14,7 +14,7 @@ enum SelfTest {
         var assertionID = IOPMAssertionID(0)
         let result = IOPMAssertionCreateWithName("PreventUserIdleSystemSleep" as CFString,
                                                  IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                                                 "Vorssaint selftest" as CFString,
+                                                 "Perch selftest" as CFString,
                                                  &assertionID)
         if result == kIOReturnSuccess {
             IOPMAssertionRelease(assertionID)
@@ -44,7 +44,11 @@ enum SelfTest {
         }
 
         if let smc = SMCClient() {
-            let keys = smc.keys { $0.hasPrefix("Tp") || $0.hasPrefix("Te") || $0.hasPrefix("Tg") }
+            let platform = TemperatureSensorSelector.currentPlatform()
+            let keys = smc.keys {
+                TemperatureSensorSelector.isCPUTemperatureKey($0, platform: platform)
+                    || TemperatureSensorSelector.isGPUTemperatureKey($0)
+            }
             if keys.isEmpty {
                 warnings.append("no SMC temperature keys")
             } else if keys.compactMap({ smc.readValue($0) }).isEmpty {
@@ -192,7 +196,7 @@ enum SelfTest {
 }
 
 /// Prints every temperature sensor the monitor would consider, with its
-/// classification. Run with `Vorssaint --sensors`; handy when porting
+/// classification. Run with `Perch --sensors`; handy when porting
 /// the sensor mapping to a new chip generation.
 enum SensorDump {
     static func runAndExit() -> Never {
@@ -200,11 +204,12 @@ enum SensorDump {
             print("AppleSMC unavailable")
             exit(1)
         }
+        let cpuPlatform = TemperatureSensorSelector.currentPlatform()
         let keys = smc.keys { name in
-            name.hasPrefix("Tp") || name.hasPrefix("Te") || name.hasPrefix("Tg")
+            TemperatureSensorSelector.isCPUTemperatureKey(name, platform: cpuPlatform)
+                || TemperatureSensorSelector.isGPUTemperatureKey(name)
                 || name.range(of: "^TB[0-9]T$", options: .regularExpression) != nil
         }
-        let cpuPlatform = TemperatureSensorSelector.currentPlatform()
         let hasCPUCoreSet = TemperatureSensorSelector.hasCPUCoreSet(platform: cpuPlatform)
         print("component    key   type   °C")
         for key in keys.sorted(by: { $0.name < $1.name }) {
@@ -212,7 +217,7 @@ enum SensorDump {
             let component: String
             if key.name.hasPrefix("TB") {
                 component = "battery"
-            } else if key.name.hasPrefix("Tg") {
+            } else if TemperatureSensorSelector.isGPUTemperatureKey(key.name) {
                 component = "gpu"
             } else if hasCPUCoreSet {
                 component = TemperatureSensorSelector.isCPUCoreKey(key.name, platform: cpuPlatform) ? "cpu-core" : "cpu-aux"

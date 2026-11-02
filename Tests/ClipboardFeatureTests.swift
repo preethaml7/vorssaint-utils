@@ -67,7 +67,7 @@ enum ClipboardFeatureTests {
         var candidates: Set<String> = []
         var lookup: Set<String> = []
         var historyPanelWasKey = false
-        let ownBundleID: String? = "com.vorssaint.utils"
+        let ownBundleID: String? = "io.protopanda.perch"
         static var front: String?
         static func frontmostBundleID() -> String? { front }
     }
@@ -121,8 +121,8 @@ enum ClipboardFeatureTests {
                      "a copy naming an app that is not skipped is still recorded under that app")
         source.lookup = []
         source.candidates = ["com.apple.Safari"]
-        suite.expect(sourceCheck(declared: "com.vorssaint.utils").bundleID == nil,
-                     "text Vorssaint copies itself, such as recognized text, is not credited to the app in front")
+        suite.expect(sourceCheck(declared: "io.protopanda.perch").bundleID == nil,
+                     "text Perch copies itself, such as recognized text, is not credited to the app in front")
         source.candidates = ["com.apple.Safari"]
         suite.expect(sourceCheck(declared: "com.apple.Notes").bundleID == "com.apple.Notes",
                      "an app that names itself on the pasteboard is believed over the app in front")
@@ -1531,7 +1531,7 @@ enum ClipboardFeatureTests {
         ClipboardHistoryImageEditorTests.run(suite)
         ClipboardHistoryAccessTests.run(suite)
 
-        let pasteboardAccess = GeneralPasteboardAccess(label: "Vorssaint.Tests.PasteboardAccess")
+        let pasteboardAccess = GeneralPasteboardAccess(label: "Perch.Tests.PasteboardAccess")
         let pasteboardGroup = DispatchGroup()
         let pasteboardStateLock = NSLock()
         var activePasteboardOperations = 0

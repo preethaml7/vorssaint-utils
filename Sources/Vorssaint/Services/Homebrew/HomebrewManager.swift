@@ -208,7 +208,7 @@ final class HomebrewManager: ObservableObject {
     }
 
     /// Removal needs a fresh inventory: an app may have just been installed
-    /// outside Vorssaint. Concurrent requests for the same path share one read.
+    /// outside Perch. Concurrent requests for the same path share one read.
     /// A failed read must never be mistaken for an unmanaged app.
     func packageManagingApplication(at url: URL,
                                     completion: @escaping (Result<HomebrewPackage?, HomebrewOwnershipError>) -> Void) {

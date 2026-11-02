@@ -10,7 +10,7 @@ import ImageIO
 enum RecorderExportRenderingTests {
     static func run(_ suite: TestSuite) {
         let done = DispatchSemaphore(value: 0)
-        Task.detached {
+        let task = Task.detached {
             do {
                 try await probe(suite)
             } catch {
@@ -18,7 +18,17 @@ enum RecorderExportRenderingTests {
             }
             done.signal()
         }
-        suite.expect(done.wait(timeout: .now() + 300) == .success,
+        // This probe exports many videos/GIFs in an unoptimized test binary.
+        // Older Intel encoders need more time than the upstream ARM host;
+        // rendered-output and progress assertions below remain unchanged.
+        #if arch(x86_64)
+        let fixtureTimeout: TimeInterval = 900
+        #else
+        let fixtureTimeout: TimeInterval = 300
+        #endif
+        let completed = done.wait(timeout: .now() + fixtureTimeout) == .success
+        if !completed { task.cancel() }
+        suite.expect(completed,
                      "export regression finishes within its deadline")
     }
 

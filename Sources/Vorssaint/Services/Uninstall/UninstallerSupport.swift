@@ -39,7 +39,7 @@ enum UninstallerSupport {
         case sharedIdentifier
         /// Shipped inside another app, which needs it.
         case insideAnotherApp
-        /// Vorssaint itself, which removes itself from Advanced settings.
+        /// Perch itself, which removes itself from Advanced settings.
         case thisApp
         /// A link to an app kept somewhere else, never its destination.
         case link
@@ -787,10 +787,11 @@ enum UninstallerSupport {
         }
     }
 
-    /// Vorssaint's own identifiers, among the protected ones.
+    /// Perch's own identifiers, among the protected ones.
     private static func isOwnBundleID(_ id: String) -> Bool {
         let lowered = id.lowercased()
-        return lowered == "com.vorssaint" || lowered.hasPrefix("com.vorssaint.")
+        return lowered == "io.protopanda.perch" || lowered.hasPrefix("io.protopanda.perch.")
+            || lowered == "com.vorssaint" || lowered.hasPrefix("com.vorssaint.")
             || lowered.hasPrefix("vorss.")
     }
 

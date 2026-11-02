@@ -52,7 +52,7 @@ final class RecorderCaptureEngine: NSObject {
 
     // MARK: - Lifecycle
 
-    /// Builds the filter and starts the stream. Existing ordinary Vorssaint
+    /// Builds the filter and starts the stream. Existing ordinary Perch
     /// windows remain recordable, while new app chrome stays excluded.
     func start(region: RecorderSupport.Region,
                frameRate: Int,

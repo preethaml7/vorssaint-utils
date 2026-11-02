@@ -33,7 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
     private var panelPresentationSerial = 0
     private var panelPresentationObservers: [NSObjectProtocol] = []
     /// The app to hand activation back to when the panel is dismissed, so
-    /// Vorssaint does not stay in front. Captured when a click opens the panel
+    /// Perch does not stay in front. Captured when a click opens the panel
     /// and kept current by the observers below while the panel is shown.
     private var panelActivationSource: NSRunningApplication?
 
@@ -1479,7 +1479,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         endPanelActivationTracking()
         let ownPID = NSRunningApplication.current.processIdentifier
         let front = NSWorkspace.shared.frontmostApplication
-        // Opened while Vorssaint was already in front (from Settings, say):
+        // Opened while Perch was already in front (from Settings, say):
         // there is nothing to hand back when the panel closes.
         panelActivationSource = front?.processIdentifier == ownPID ? nil : front
         let center = NSWorkspace.shared.notificationCenter
@@ -1515,7 +1515,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         return source
     }
 
-    /// Closing the panel leaves Vorssaint active, and macOS keeps reporting it
+    /// Closing the panel leaves Perch active, and macOS keeps reporting it
     /// as the frontmost app until something else is focused, which misleads
     /// window managers and anything that follows the active app.
     private func returnActivation(to source: NSRunningApplication?, after closeReason: PanelCloseReason?) {
@@ -1807,7 +1807,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
         editMenu.addItem(NSMenuItem(title: strings.menuPaste, action: #selector(NSText.paste(_:)), keyEquivalent: "v"))
         editMenu.addItem(NSMenuItem(title: strings.menuSelectAll, action: #selector(NSText.selectAll(_:)), keyEquivalent: "a"))
 
-        // Drivers and other running copies of Vorssaint may translate side buttons
+        // Drivers and other running copies of Perch may translate side buttons
         // into menu commands before this process ever receives a raw mouse event.
         let navigationMenuItem = NSMenuItem()
         navigationMenuItem.submenu = SettingsWindow.navigationMenu(language: L10n.shared.language)
@@ -1903,24 +1903,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSW
 
     func openFeedbackWindow(kind: FeedbackKind = .bug) {
         closePopover()
-        let host = NSHostingController(rootView: FeedbackView(initialKind: kind) { [weak self] in
-            self?.feedbackWindow?.close()
-        })
-        if let window = feedbackWindow {
-            window.contentViewController = host
-        } else {
-            let window = NSWindow(contentViewController: host)
-            window.styleMask = [.titled, .closable]
-            window.titleVisibility = .hidden
-            window.isReleasedWhenClosed = false
-            window.isRestorable = false
-            window.delegate = self
-            window.center()
-            feedbackWindow = window
-        }
-        feedbackWindow?.title = FeatureStrings.feedback(L10n.shared.language).windowTitle
-        NSApp.activate(ignoringOtherApps: true)
-        feedbackWindow?.makeKeyAndOrderFront(nil)
+        // Fork reports belong to this repository, not the upstream hosted inbox.
+        var destination = URLComponents(
+            url: AppInfo.repositoryURL.appendingPathComponent("issues/new"),
+            resolvingAgainstBaseURL: false)!
+        destination.queryItems = [
+            URLQueryItem(name: "template",
+                         value: kind == .bug ? "bug_report.yml" : "feature_request.yml")
+        ]
+        if let url = destination.url { NSWorkspace.shared.open(url) }
     }
 
     private func positionSettingsWindow(_ window: NSWindow, force: Bool, on targetScreen: NSScreen? = nil) {

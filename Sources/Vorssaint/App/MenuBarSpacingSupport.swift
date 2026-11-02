@@ -289,7 +289,7 @@ enum MenuBarSpacingSupport {
 }
 
 enum StatusItemPlacementSupport {
-    static let mainAutosaveName = "VorssaintMenuBarItem"
+    static let mainAutosaveName = "PerchMenuBarItem"
     static let maxPlacementGeneration = 10_000
 
     static func placementGeneration(in defaults: UserDefaults) -> Int {
