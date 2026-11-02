@@ -2,9 +2,9 @@
 
 <img src="Resources/Brand/Perch-AppIcon.png" width="120" alt="Perch bird app icon">
 
-A personal Intel Mac compatibility fork of [Vorssaint](https://github.com/vorssaint/vorssaint-utils).
+An Intel Mac compatibility fork of [Vorssaint](https://github.com/vorssaint/vorssaint-utils).
 
-**Vorssaint and its contributors built the original app and its features.** Perch adapts their work for Preetham Lokesh’s older Intel Mac. It is an unofficial fork, independently named and maintained, with no claim of endorsement. See [attribution](ATTRIBUTION.md), the original [trademark notice](TRADEMARKS.md), and the [GPL-3.0-or-later license](LICENSE).
+**Vorssaint and its contributors built the original app and its features.** Perch adapts their work for Intel Macs. It is an unofficial fork, independently named and maintained, with no claim of endorsement. See [attribution](ATTRIBUTION.md), the original [trademark notice](TRADEMARKS.md), and the [GPL-3.0-or-later license](LICENSE).
 
 ## Why this fork exists
 
@@ -19,7 +19,7 @@ The many existing utilities—audio controls, window management, clipboard histo
 - Intel native and universal builds passed. GitHub CI also passed full suites on both current and Swift 6.0.3 toolchains (119,802 and 119,801 checks).
 - Apple Silicon builds and tests run on GitHub-hosted runners; interactive hardware features have not been manually tested on an Apple Silicon Mac.
 - Features depend on hardware, firmware, permissions and macOS version. See [validation evidence](docs/INTEL-VALIDATION.md).
-- This is a personal fork, with no promise of feature parity or ongoing support for every Mac.
+- This fork has no promise of feature parity or ongoing support for every Mac.
 
 ## Build and install
 
