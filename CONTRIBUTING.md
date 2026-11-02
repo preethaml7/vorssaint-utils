@@ -108,6 +108,12 @@ Report vulnerabilities through [private security reporting](SECURITY.md).
 
 ## Releases (maintainers)
 
+For this independent Perch fork, follow [Perch releases](docs/FORK-RELEASES.md).
+Its separate workflow prepares a draft with a `perch-v` tag; the maintainer
+reviews the artifact and explicitly publishes it. Initial Perch previews are
+self-signed and not notarized. The protected signing environment and upstream
+release process described below belong to the original project.
+
 Integrating into `main`, pushing a branch and opening a PR do not publish a release.
 Publication requires an explicit release decision, including beta or stable.
 

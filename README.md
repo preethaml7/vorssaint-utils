@@ -16,8 +16,8 @@ The many existing utilities—audio controls, window management, clipboard histo
 
 - macOS 14 Sonoma or newer; Intel or Apple Silicon.
 - Locally validated on MacBookPro15,1 with macOS 15.8.2.
-- Intel native and universal builds passed; original validation included 119,800 regression checks.
-- Apple Silicon slices compile, but have not been run on Apple Silicon hardware in this fork.
+- Intel native and universal builds passed. GitHub CI also passed full suites on both current and Swift 6.0.3 toolchains (119,802 and 119,801 checks).
+- Apple Silicon builds and tests run on GitHub-hosted runners; interactive hardware features have not been manually tested on an Apple Silicon Mac.
 - Features depend on hardware, firmware, permissions and macOS version. See [validation evidence](docs/INTEL-VALIDATION.md).
 - This is a personal fork, with no promise of feature parity or ongoing support for every Mac.
 
@@ -56,7 +56,7 @@ Perch does not grant permissions automatically or replace the original app.
 
 ## Releases
 
-Only download Perch builds from [this fork’s releases](https://github.com/preethaml7/vorssaint-utils/releases). No Perch release has been published yet. Local and CI builds are not Apple-notarized unless a release explicitly says otherwise. Automatic self-installing updates are disabled; the update button opens this fork’s releases page.
+Download Perch DMGs from [this fork’s releases](https://github.com/preethaml7/vorssaint-utils/releases). Read the release notes for signing details and validation limits. Initial preview builds use a separate Perch self-signed certificate and are **not Apple-notarized**. CI artifacts use ad-hoc signing and cannot authenticate the privileged fan helper; use a certificate-signed release or build with your own stable Perch certificate for that feature. Automatic self-installing updates are disabled; the update button opens this fork’s releases page.
 
 The manual **Perch build and draft release** workflow builds universal artifacts.
 An optional `perch-vX.Y.Z` tag creates a **draft prerelease** for review. It does

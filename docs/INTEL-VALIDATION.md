@@ -67,3 +67,12 @@ earlier 119,800-pass result above predates the Perch rename.
 Final installer: `dist/Perch-3.4.3.dmg`.
 SHA-256: `b6f4f63df3491bfc43b3df1a3f557ef82dbb99815820c5724856f1187aee43ac`.
 The hardware and manual-verification limits above still apply.
+
+## GitHub CI confirmation
+
+[CI run 41377133439](https://github.com/preethaml7/vorssaint-utils/actions/runs/41377133439)
+passed both jobs on commit `b703ce73`: current-toolchain build, self-test, DMG
+packaging and 119,802 checks; Swift 6.0.3 compatibility build, self-test and
+119,801 checks. Both jobs passed all three shell regression scripts. These
+GitHub-hosted Apple Silicon tests supplement the local Intel evidence; they do
+not exercise every interactive hardware or permission-dependent feature.
