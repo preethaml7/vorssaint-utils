@@ -4,6 +4,15 @@ Perch is an unofficial Intel compatibility fork of Vorssaint. Original app and
 features are by Vorssaint and its contributors; see [ATTRIBUTION.md](../ATTRIBUTION.md).
 The upstream copyright and GPL license remain intact.
 
+## Current release
+
+[Download Perch 3.4.3 (DMG)](https://github.com/preethaml7/vorssaint-utils/releases/download/perch-v3.4.3/Perch-3.4.3.dmg).
+This is a regular release, published with the prerelease flag disabled.
+The [release notes and checksum](https://github.com/preethaml7/vorssaint-utils/releases/tag/perch-v3.4.3)
+describe the independent self-signed certificate and testing limitations. The
+DMG is not Apple Developer ID signed or Apple notarized; regular release status
+does not change its signing or hardware-validation coverage.
+
 ## Identity
 
 - App: Perch; developer app: Perch (Developer).
@@ -47,21 +56,24 @@ Do not upload the earlier personally built `Vorssaint-3.4.3.dmg` as a Perch
 release: it predates the independent identity. Use newly built Perch artifacts.
 No public release is created merely by pushing or merging this branch.
 
-## Publishing a reviewed preview
+## Publishing a reviewed release
 
 Wait for both CI jobs and the Perch build workflow to pass. The workflow's draft
-uses a GitHub-created `perch-v` tag pointing at the tested source commit. Keep
-the release a prerelease while interactive hardware coverage remains limited.
+uses a GitHub-created `perch-v` tag pointing at the tested source commit. It
+initially sets the prerelease flag for review. For a regular release, clear
+**Set as a pre-release** before publishing and mark the release as latest.
+Document the actual hardware coverage and signing status in either case.
 
 GitHub-hosted artifacts are ad-hoc signed and cannot authenticate privileged fan
-control. For the initial public preview, replace the draft DMG with the reviewed
-universal build signed by the independent `Perch Utils Signing` certificate, and
-replace `SHA256SUMS` with that artifact's checksum. Confirm its source matches
+control. For the Perch 3.4.3 release, the draft DMG was replaced with the reviewed
+universal build signed by the independent `Perch Utils Signing` certificate;
+`SHA256SUMS` was also updated to match. For future releases, confirm the source matches
 the tagged app code, mount it read-only, and verify bundle identity, architectures,
 signature, and packaged attribution before publication. Never replace an artifact
 after publication; publish a new version for subsequent changes.
 
 Release notes must distinguish the locally certificate-signed DMG from CI
 artifacts, credit Vorssaint, link the source and validation evidence, and state
-that the build is not Apple notarized. Explicitly publish the reviewed draft;
+that the build is not Apple notarized. For a regular release, explicitly publish
+the reviewed draft with `--draft=false --prerelease=false --latest` using `gh release edit`;
 the workflow intentionally does not publish it automatically.

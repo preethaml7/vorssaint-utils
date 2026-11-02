@@ -37,8 +37,10 @@ Keep that identity across rebuilds: ad-hoc signatures change with the binary and
 can invalidate macOS permission grants. Check the build output for signing
 failures. For stale grants, see [troubleshooting](docs/TROUBLESHOOTING.md#resetting-permissions).
 
-Official releases use Developer ID signing and notarization through the protected
-release workflow. Local signing does not produce an official release.
+Upstream official releases use Developer ID signing and notarization through the
+protected release workflow. Perch releases follow the independent
+[fork release process](docs/FORK-RELEASES.md); Perch 3.4.3 is self-signed and not
+Apple notarized.
 
 ## Scope and implementation
 
@@ -110,7 +112,7 @@ Report vulnerabilities through [private security reporting](SECURITY.md).
 
 For this independent Perch fork, follow [Perch releases](docs/FORK-RELEASES.md).
 Its separate workflow prepares a draft with a `perch-v` tag; the maintainer
-reviews the artifact and explicitly publishes it. Initial Perch previews are
+reviews the artifact and explicitly publishes it. Perch 3.4.3 is a regular release,
 self-signed and not notarized. The protected signing environment and upstream
 release process described below belong to the original project.
 
